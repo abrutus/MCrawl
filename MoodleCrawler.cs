@@ -63,10 +63,6 @@ namespace MCrawl
             public DateTime Due { get; set; }
             public DateTime Submitted { get; set; }
             public double Grade { get; set; }
-            public string toString()
-            {
-                return "Topic: " + Topic + "\r\nName: " + Name + "\r\nType: " + Type + "\r\nDue: " + Due + "\r\nSubmitted: " + Submitted + "\r\nGrade:" + Grade + "";
-            }
         }
 
         // Perform login
