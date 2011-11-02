@@ -5,7 +5,8 @@ Service Reference
 You need to have MCrawl and HtmlAgilityPack added as a reference.
 Example
 -------
-The following (console application) snippet will display all assignments in the terminal.
+The following (console application) snippet will display all assignments in the terminal
+
     //using MCrawl;
     MoodleCrawler crawler = new MoodleCrawler("username", "password");
     var assignments=crawler.FetchAllAssignments();
