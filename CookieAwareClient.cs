@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ * MCrawl.CookieAwareWebClient
+ * Extends the WebClient and allows for Login (Cookies)
+ * Andre Brutus - ith help from lasseespeholt
+ */
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
