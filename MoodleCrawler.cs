@@ -162,7 +162,7 @@ namespace MCrawl
                                 break;
                             case 5:
                                 hw.Grade = -1.00;
-                                if (tds.InnerText != "")
+                                if (tds.InnerText != "" && tds.InnerText.Trim() != "-")
                                     hw.Grade = Convert.ToDouble(tds.InnerText);
                                 alist.Add(hw);
                                 break;
