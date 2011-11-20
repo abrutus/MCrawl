@@ -1,7 +1,7 @@
 ﻿/**
  * Mcrawl.MoodleCrawler
  * Logs in, Fetches all Courses and all their respective assignments
- * Andre Brutus
+ * Andre Brutus and Class 446
  */
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using HtmlAgilityPack;
 using System.Collections.Specialized;
 using System.Net;
 
-namespace MCrawl
+namespace MoodleCrawler
 {
     public class MoodleCrawler
     {
@@ -33,42 +33,60 @@ namespace MCrawl
         private string html;
         private List<Assignment> assignment_list;
         private List<int> courses;
-        private CookieAwareWebClient browser;
+        public List<Course> ListofCourses;
+        public List<Course> getCourses()
+        {
+            return ListofCourses;
+        }
+
+
+        private CookieAwareWebClient mBrowser;
+
+        public CookieAwareWebClient Browser
+        {
+            get
+            {
+                if (mBrowser == null) // init default instance
+                    mBrowser = new CookieAwareWebClient();
+                return mBrowser;
+            }
+            set
+            {
+                mBrowser = value;
+            }
+        }
+
 
         //Constructor
+        public MoodleCrawler() : this(null, null)
+        {
+
+        }
+
         public MoodleCrawler(string u, string p)
         {   // Initialize Assignment List
             assignment_list = new List<Assignment>();
             courses = new List<int>();
-
+            ListofCourses = new List<Course>();
             // Save User Information
             credentials = new System.Collections.Specialized.NameValueCollection();
             credentials.Add("username", u);
             credentials.Add("password", p);
 
-            // Start browser and perform login
-            browser = new CookieAwareWebClient();
-            browser.Encoding = Encoding.UTF8;
+            // Start Browser and perform login
+            Browser = new CookieAwareWebClient();
+            Browser.Encoding = Encoding.UTF8;
             Login();
 
             //Load the course array
             LoadCourses();
         }
-        //Assignment Class
-        public class Assignment
-        {
-            public string Topic { get; set; }
-            public string Name { get; set; }
-            public string Type { get; set; }
-            public DateTime Due { get; set; }
-            public DateTime Submitted { get; set; }
-            public double Grade { get; set; }
-        }
+
 
         // Perform login
-        void Login()
+        public void Login()
         {
-            browser.UploadValues(login_url, credentials);
+            Browser.UploadValues(login_url, credentials);
         }
 
         // Make sure we have no duplicate courses (if its not -1) then dont add
@@ -88,7 +106,7 @@ namespace MCrawl
             // Load Page
             HtmlAgilityPack.HtmlDocument htmldoc = new HtmlAgilityPack.HtmlDocument();
 
-            htmldoc.LoadHtml(html = browser.DownloadString(postLoginUrl));
+            htmldoc.LoadHtml(html = Browser.DownloadString(postLoginUrl));
             var htmlTopNode = htmldoc.DocumentNode;
 
             var courses = htmlTopNode.SelectNodes("//a[starts-with(@href, '"+courseUrl+"')]");
@@ -109,14 +127,17 @@ namespace MCrawl
         List<Assignment> fetchAssignmentsByCourse(int CourseID)
         {
             List<Assignment> alist = new List<Assignment>();
-            var html = browser.DownloadString(assignmentListUrlbyClass + Convert.ToString(CourseID));
+            var html = Browser.DownloadString(assignmentListUrlbyClass + Convert.ToString(CourseID));
             HtmlAgilityPack.HtmlDocument htmldoc = new HtmlAgilityPack.HtmlDocument();
             htmldoc.LoadHtml(html);
             
             // Parse zebra style rows (alternating class r0,r1,r0,r1)
+            //var className = htmldoc.DocumentNode.Descendants("a").Where(tr => tr.GetAttributeValue("href", "").Contains("https://eclass.e.southern.edu/course/view.php?id="+CourseID)).ToArray();
+            
             var links = htmldoc.DocumentNode.Descendants("tr").Where(tr => tr.GetAttributeValue("class", "").Contains("r0")).ToArray();
             var links2 = htmldoc.DocumentNode.Descendants("tr").Where(tr => tr.GetAttributeValue("class", "").Contains("r1")).ToArray();
-
+            var className = htmldoc.DocumentNode.Descendants("div").Where(div => div.GetAttributeValue("class", "").Contains("coursename")).ToArray();
+            ListofCourses.Add(new Course(CourseID, className[0].InnerText));
             int list_size = links.Length + links2.Length;
             List<HtmlNode> assigments = new List<HtmlNode>();
             foreach (HtmlNode l in links)
@@ -132,6 +153,7 @@ namespace MCrawl
             foreach (HtmlNode single in assigments)
             {
                 Assignment hw = new Assignment();
+                hw.ClassName = className[0].InnerText;
                 foreach (HtmlNode tds in single.ChildNodes)
                 {
                     if (tds.Name == "td")

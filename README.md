@@ -17,5 +17,12 @@ The following (console application) snippet will display all assignments in the 
     						"\r\nType: " + a.Type +
     						"\r\nDue: " + a.Due +
     						"\r\nSubmitted: " +a.Submitted +
+							"\r\nClasName: " +a.ClassName +
     						"\r\nGrade:" + a.Grade + "\r\n---\r\n");
     }
+Also, if you want to retreive a courselist, you can use
+	course.ListofCourses 
+a public list of Courses (object type). List<Course> ListofCourses;
+
+The listofcourses will only be available after fetchallassignments is called.
+
